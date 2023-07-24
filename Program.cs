@@ -10,7 +10,7 @@ await ConsoleApp.RunAsync(args, MainAsync);
 
 async Task<int> MainAsync(
     [Option("path", "走査するディレクトリ")] string rootPath,
-    [Option("ex", "拡張子")] string extentions = "cs")
+    [Option("ex", "拡張子")] string extensions = "cs")
 {
     if (File.Exists(rootPath))
     {
@@ -20,7 +20,7 @@ async Task<int> MainAsync(
 
     await $"cd {rootPath}";
 
-    var csPaths = await $"find {rootPath} -type f -name '*.{extentions}'";
+    var csPaths = await $"find {rootPath} -type f -name '*.{extensions}'";
     foreach (var csPath in csPaths.Split(br))
     {
         string grepResults;
