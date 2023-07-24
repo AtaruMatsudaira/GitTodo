@@ -4,7 +4,6 @@ using Zx;
 using static Zx.Env;
 
 var br = Environment.NewLine;
-
 var sb = new StringBuilder();
 
 await ConsoleApp.RunAsync(args, MainAsync);
@@ -13,6 +12,12 @@ async Task<int> MainAsync(
     [Option("path", "走査するディレクトリ")] string rootPath,
     [Option("ex", "拡張子")] string extentions = "cs")
 {
+    if (File.Exists(rootPath))
+    {
+        log("pathがファイルでした。ディレクトリを指定してください", ConsoleColor.Red);
+        return 1;
+    }
+
     await $"cd {rootPath}";
 
     var csPaths = await $"find {rootPath} -type f -name '*.{extentions}'";
@@ -21,7 +26,6 @@ async Task<int> MainAsync(
         string grepResults;
         try
         {
-
             grepResults = await $"grep -in '[^a-zA-Z]TODO[^a-zA-Z]' '{csPath}'";
         }
         catch (ProcessErrorException)
@@ -34,7 +38,6 @@ async Task<int> MainAsync(
             var index = grepResult.IndexOf(':');
             var lineNum = grepResult.Substring(0, index);
             var content = grepResult.Substring(index + 1);
-
             string blameInfos;
 
             try
@@ -45,6 +48,7 @@ async Task<int> MainAsync(
             {
                 continue;
             }
+
             var author = blameInfos.Split(br).Where(info => info.StartsWith("author")).FirstOrDefault("");
             sb.AppendLine($"{csPath}:{lineNum}:{author}");
             sb.AppendLine(content);
@@ -53,7 +57,5 @@ async Task<int> MainAsync(
     }
 
     log(sb.ToString(), ConsoleColor.Yellow);
-    
-
     return 0;
 }
